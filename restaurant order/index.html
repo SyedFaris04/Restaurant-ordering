@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Bites | Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>Green Bites</h1>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="checkout.html">Cart <span class="cart-count" id="cartCountNav">0</span></a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Delicious & Healthy Food</h2>
+            <p>From our kitchen to your table, with love and care</p>
+            <a href="#menu" class="btn btn-primary">Order Now</a>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu-section">
+        <div class="container">
+            <h2 class="section-title">Our Menu</h2>
+            
+            <div class="menu-categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="main">Main Course</button>
+                <button class="category-btn" data-category="starters">Starters</button>
+                <button class="category-btn" data-category="desserts">Desserts</button>
+                <button class="category-btn" data-category="drinks">Drinks</button>
+            </div>
+            
+            <div class="menu-items" id="menuItems">
+                <!-- Menu items will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Cart Button -->
+    <div class="floating-cart" id="floatingCart">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count" id="cartCountFloat">0</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p>📱 Phone: (123) 456-7890</p>
+                    <p>✉️ Email: info@greenbites.com</p>
+                    <p>🏠 Address: 123 Food Street, Tasty City</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Opening Hours</h3>
+                    <p>Monday - Friday: 10:00 AM - 10:00 PM</p>
+                    <p>Saturday - Sunday: 11:00 AM - 11:00 PM</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">FB</a>
+                        <a href="#" class="social-icon">IG</a>
+                        <a href="#" class="social-icon">TW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Green Bites. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

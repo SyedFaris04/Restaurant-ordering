@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Bites | Checkout</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>Green Bites</h1>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#menu">Menu</a></li>
+                <li><a href="checkout.html" class="active">Cart <span class="cart-count" id="cartCountNav">0</span></a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Checkout Section -->
+    <section class="checkout-section">
+        <div class="container">
+            <h2 class="section-title">Your Order</h2>
+            
+            <div class="checkout-container">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="cartItems" class="cart-items">
+                        <!-- Cart items will be loaded here -->
+                    </div>
+                    <div class="cart-total">
+                        <h4>Total: <span id="cartTotal">$0.00</span></h4>
+                    </div>
+                </div>
+                
+                <!-- Checkout Form -->
+                <div class="checkout-form">
+                    <h3>Customer Information</h3>
+                    <form id="orderForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        
+                        <h3>Delivery Options</h3>
+                        <div class="form-group radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="pickup" name="deliveryOption" value="pickup" checked>
+                                <label for="pickup">Pickup</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="delivery" name="deliveryOption" value="delivery">
+                                <label for="delivery">Delivery</label>
+                            </div>
+                        </div>
+                        
+                        <div id="addressFields" class="hidden">
+                            <div class="form-group">
+                                <label for="address">Delivery Address</label>
+                                <textarea id="address" name="address" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <h3>Payment Method</h3>
+                        <div class="form-group radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="counterPayment" name="paymentMethod" value="counter" checked>
+                                <label for="counterPayment">Pay at Counter</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="onlinePayment" name="paymentMethod" value="online">
+                                <label for="onlinePayment">Pay Online (Simulated)</label>
+                            </div>
+                        </div>
+                        
+                        <div id="referenceField" class="hidden">
+                            <div class="form-group">
+                                <label for="reference">Reference ID</label>
+                                <input type="text" id="reference" name="reference">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="placeOrderBtn">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Order Confirmation Modal -->
+    <div id="orderConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for your order. Your order has been placed successfully.</p>
+            <div id="orderSummary"></div>
+            <button class="btn btn-primary" id="backToHomeBtn">Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p>📱 Phone: (123) 456-7890</p>
+                    <p>✉️ Email: info@greenbites.com</p>
+                    <p>🏠 Address: 123 Food Street, Tasty City</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Opening Hours</h3>
+                    <p>Monday - Friday: 10:00 AM - 10:00 PM</p>
+                    <p>Saturday - Sunday: 11:00 AM - 11:00 PM</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">FB</a>
+                        <a href="#" class="social-icon">IG</a>
+                        <a href="#" class="social-icon">TW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Green Bites. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
