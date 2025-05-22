@@ -546,3 +546,50 @@ function displayFeedback() {
     
     feedbackListContainer.innerHTML = html;
 }
+document.addEventListener("DOMContentLoaded", () => {
+  const checkoutForm = document.getElementById('checkoutForm');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Get values from form
+      const customerName = document.getElementById('customerName').value;
+      const deliveryAddress = document.getElementById('deliveryAddress').value || 'Pickup at counter';
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      // Get cart from localStorage
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      const orderItems = cart.map(item => `${item.name} x${item.quantity}`).join(', ');
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const orderData = {
+        customer_name: customerName,
+        order_items: orderItems,
+        total_price: totalPrice,
+        payment_method: paymentMethod,
+        delivery_address: deliveryAddress
+      };
+
+      // Send data to backend
+      try {
+        const response = await fetch('http://localhost:3001/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+
+        if (response.ok) {
+          alert('Order placed successfully!');
+          localStorage.removeItem('cart'); // clear cart
+          window.location.href = 'index.html';
+        } else {
+          alert('Failed to place order. Please try again.');
+        }
+      } catch (error) {
+        alert('An error occurred while placing the order.');
+        console.error(error);
+      }
+    });
+  }
+});
