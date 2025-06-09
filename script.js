@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load menu items
     if (document.getElementById('menuItems')) {
-        (currentCategory);
+        displayMenuItems(currentCategory);
         
         // Add event listeners to category buttons
         const categoryButtons = document.querySelectorAll('.category-btn');
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('active');
                 
                 // Display filtered menu items
-                (category);
+                displayMenuItems(category);
             });
         });
     }
@@ -351,7 +351,7 @@ function displayCartItems() {
     
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
-        cartTotalElement.textContent = '$0.00';
+        cartTotalElement.textContent = 'RM0.00';
         return;
     }
     
@@ -382,7 +382,7 @@ function displayCartItems() {
     });
     
     cartItemsContainer.innerHTML = html;
-    cartTotalElement.textContent = `$${total.toFixed(2)}`;
+    cartTotalElement.textContent = `RM${total.toFixed(2)}`;
     
     // Add event listeners to cart quantity buttons
     const minusButtons = cartItemsContainer.querySelectorAll('.cart-minus');
