@@ -12,7 +12,7 @@ const menuData = [
         id: 2,
         name: "Nasi Goreng Ayam",
         description: "Whole grain toast topped with smashed avocado, cherry tomatoes, and microgreens.",
-        price: 9.99,
+        price: 7.00,
         image: "https://www.google.com/imgres?q=nasi%20goreng%20ayam&imgurl=https%3A%2F%2Ffast.ejazmine.com%2Fwp-content%2Fuploads%2F2021%2F09%2Fnasi-goreng-ayam.jpg&imgrefurl=https%3A%2F%2Ffast.ejazmine.com%2Fproduct%2Fnasi-goreng-ayam%2F&docid=K73i4WuI8FBThM&tbnid=dwwxAG4kcBJZOM&vet=12ahUKEwj9wfzxquSNAxXUbmwGHSqELtoQM3oECBsQAA..i&w=1440&h=1080&hcb=2&ved=2ahUKEwj9wfzxquSNAxXUbmwGHSqELtoQM3oECBsQAA",
         category: "main"
     },
@@ -222,12 +222,12 @@ function displayMenuItems(category) {
     let html = '';
     filteredItems.forEach(item => {
         html += `
-            <div class="menu-item" data-id="${item.id}">
-                <img src="${item.image}" alt="${item.name}" class="menu-item-img">
+            <div class="menu-item" data-id="RM{item.id}">
+                <img src="RM{item.image}" alt="RM{item.name}" class="menu-item-img">
                 <div class="menu-item-info">
-                    <h3 class="menu-item-title">${item.name}</h3>
-                    <p class="menu-item-desc">${item.description}</p>
-                    <p class="menu-item-price">$${item.price.toFixed(2)}</p>
+                    <h3 class="menu-item-title">RM{item.name}</h3>
+                    <p class="menu-item-desc">RM{item.description}</p>
+                    <p class="menu-item-price">RMRM{item.price.toFixed(2)}</p>
                     <div class="menu-item-actions">
                         <div class="quantity-selector">
                             <button class="quantity-btn minus">-</button>
@@ -310,7 +310,7 @@ function addToCart(itemId, quantity) {
     updateCartCount();
     
     // Show success message
-    alert(`${menuItem.name} added to cart!`);
+    alert(`RM{menuItem.name} added to cart!`);
 }
 
 // Save cart to localStorage
@@ -351,7 +351,7 @@ function displayCartItems() {
     
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
-        cartTotalElement.textContent = '$0.00';
+        cartTotalElement.textContent = 'RM0.00';
         return;
     }
     
@@ -363,17 +363,17 @@ function displayCartItems() {
         total += itemTotal;
         
         html += `
-            <div class="cart-item" data-id="${item.id}">
+            <div class="cart-item" data-id="RM{item.id}">
                 <div class="cart-item-info">
-                    <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                    <img src="RM{item.image}" alt="RM{item.name}" class="cart-item-img">
                     <div>
-                        <h4 class="cart-item-name">${item.name}</h4>
-                        <p class="cart-item-price">$${item.price.toFixed(2)}</p>
+                        <h4 class="cart-item-name">RM{item.name}</h4>
+                        <p class="cart-item-price">RMRM{item.price.toFixed(2)}</p>
                     </div>
                 </div>
                 <div class="cart-item-quantity">
                     <button class="quantity-btn cart-minus">-</button>
-                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10" readonly>
+                    <input type="number" class="quantity-input" value="RM{item.quantity}" min="1" max="10" readonly>
                     <button class="quantity-btn cart-plus">+</button>
                     <button class="cart-remove-btn">×</button>
                 </div>
@@ -382,7 +382,7 @@ function displayCartItems() {
     });
     
     cartItemsContainer.innerHTML = html;
-    cartTotalElement.textContent = `$${total.toFixed(2)}`;
+    cartTotalElement.textContent = `RMRM{total.toFixed(2)}`;
     
     // Add event listeners to cart quantity buttons
     const minusButtons = cartItemsContainer.querySelectorAll('.cart-minus');
@@ -488,11 +488,11 @@ function displayOrderSummary() {
         total += itemTotal;
         
         html += `
-            <p><strong>${item.name}</strong> x ${item.quantity} - $${itemTotal.toFixed(2)}</p>
+            <p><strong>RM{item.name}</strong> x RM{item.quantity} - RMRM{itemTotal.toFixed(2)}</p>
         `;
     });
     
-    html += `<p class="total"><strong>Total: $${total.toFixed(2)}</strong></p>`;
+    html += `<p class="total"><strong>Total: RMRM{total.toFixed(2)}</strong></p>`;
     html += `<p>Your order will be ready in 30 minutes.</p>`;
     
     orderSummaryContainer.innerHTML = html;
@@ -535,11 +535,11 @@ function displayFeedback() {
         html += `
             <div class="feedback-item">
                 <div class="feedback-item-header">
-                    <span class="feedback-item-name">${feedback.name}</span>
-                    <span class="feedback-item-rating">${stars}</span>
+                    <span class="feedback-item-name">RM{feedback.name}</span>
+                    <span class="feedback-item-rating">RM{stars}</span>
                 </div>
-                <p class="feedback-item-comment">${feedback.comment}</p>
-                <small>${feedback.date}</small>
+                <p class="feedback-item-comment">RM{feedback.comment}</p>
+                <small>RM{feedback.date}</small>
             </div>
         `;
     });
