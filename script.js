@@ -2,10 +2,10 @@
 const menuData = [
     {
         id: 1,
-        name: "Green Goddess Bowl",
+        name: "Nasi Goreng Pataya",
         description: "Fresh mixed greens, avocado, cucumber, broccoli, and quinoa with our signature tahini dressing.",
-        price: 12.99,
-        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop",
+        price: 7.00,
+        image: "https://www.google.com/imgres?q=nasi%20pattaya&imgurl=https%3A%2F%2Fmediapermata.com.bn%2Fwp-content%2Fuploads%2F2024%2F05%2FP13-1_14052024.jpg&imgrefurl=https%3A%2F%2Fmediapermata.com.bn%2Fnasi-goreng-pattaya%2F&docid=7gIdohI2xc4lWM&tbnid=5HL-t2fRHGpgfM&vet=12ahUKEwipiOyvquSNAxXXZWwGHaz_LFYQM3oECHkQAA..i&w=800&h=533&hcb=2&ved=2ahUKEwipiOyvquSNAxXXZWwGHaz_LFYQM3oECHkQAA",
         category: "main"
     },
     {
