@@ -3,7 +3,7 @@ const menuData = [
     {
         id: 1,
         name: "Nasi Ayam",
-        description: "Fresh mixed greens, avocado, cucumber, broccoli, and quinoa with our signature tahini dressing.",
+        description: "Nasi putih dengan ayam goreng yang rangup, dihidangkan bersama sup panas dan sos cili istimewa.",
         price: 7.00,
         image: "https://images.unsplash.com/photo-1710256198508-41630f431e35?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hpY2tlbiUyMHJpY2V8ZW58MHx8MHx8fDA%3D",
         category: "main"
@@ -11,7 +11,7 @@ const menuData = [
     {
         id: 2,
         name: "Teh O",
-        description: "Whole grain toast topped with smashed avocado, cherry tomatoes, and microgreens.",
+        description: "Teh tarik tanpa susu, disediakan dengan teh asli yang harum dan diadun dengan sempurna.",
         price: 2.50,
         image: "https://images.unsplash.com/photo-1635217217664-578a7e17218f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dGVoJTIwYWlzfGVufDB8fDB8fHww",
         category: "drinks"
@@ -19,7 +19,7 @@ const menuData = [
     {
         id: 3,
         name: "Pancake",
-        description: "Plant-based patty with lettuce, tomato, onion, and special sauce on a whole wheat bun.",
+        description: "Lempeng gebu disajikan dengan sirap maple, mentega cair dan hirisan pisang segar.",
         price: 5.00,
         image: "https://plus.unsplash.com/premium_photo-1672846027109-e2c91500afef?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFuY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
         category: "desserts"
@@ -27,7 +27,7 @@ const menuData = [
     {
         id: 4,
         name: "Jus Buah",
-        description: "Blend of seasonal fruits with almond milk and a touch of honey.",
+        description: "Jus segar campuran buah-buahan tropika termasuk mangga, betik dan tembikai.",
         price: 6.99,
         image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c21vb3RoaWV8ZW58MHx8MHx8fDA%3D",
         category: "drinks"
@@ -35,7 +35,7 @@ const menuData = [
     {
         id: 5,
         name: "Toast",
-        description: "Fluffy quinoa with mixed vegetables, feta cheese, and lemon vinaigrette.",
+        description: "Roti bakar rangup dihidangkan dengan kaya dan mentega yang meleleh.",
         price: 6.00,
         image: "https://images.unsplash.com/photo-1620921575116-fb8902865f81?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHRvYXN0fGVufDB8fDB8fHww",
         category: "starters"
@@ -43,7 +43,7 @@ const menuData = [
     {
         id: 6,
         name: "Kentang Goreng",
-        description: "Crispy sweet potato fries served with chipotle aioli.",
+        description: "Kentang goreng rangup luar lembut dalam, disajikan dengan sos tomato dan mayonis.",
         price: 7.99,
         image: "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJpZXN8ZW58MHx8MHx8fDA%3D",
         category: "starters"
@@ -51,7 +51,7 @@ const menuData = [
     {
         id: 7,
         name: "Teh Hijau",
-        description: "Organic green tea served hot or cold.",
+        description: "Teh hijau asli yang menyegarkan, boleh dihidangkan panas atau sejuk.",
         price: 3.99,
         image: "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z3JlZW4lMjB0ZWF8ZW58MHx8MHx8fDA%3D",
         category: "drinks"
@@ -59,7 +59,7 @@ const menuData = [
     {
         id: 8,
         name: "Kek Coklat",
-        description: "Rich chocolate cake made with plant-based ingredients.",
+        description: "Kek coklat lembut dengan lapisan ganache yang kaya dan sedap.",
         price: 8.99,
         image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
         category: "desserts"
