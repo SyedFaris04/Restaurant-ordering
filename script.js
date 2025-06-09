@@ -2,10 +2,10 @@
 const menuData = [
     {
         id: 1,
-        name: "Green Goddess Bowl",
+        name: "Nasi Ayam",
         description: "Fresh mixed greens, avocado, cucumber, broccoli, and quinoa with our signature tahini dressing.",
-        price: 12.99,
-        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop",
+        price: 7.00,
+        image: "https://images.unsplash.com/photo-1710256198508-41630f431e35?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hpY2tlbiUyMHJpY2V8ZW58MHx8MHx8fDA%3D",
         category: "main"
     },
     {
