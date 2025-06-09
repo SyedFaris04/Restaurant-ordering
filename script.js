@@ -10,23 +10,23 @@ const menuData = [
     },
     {
         id: 2,
-        name: "Avocado Toast",
+        name: "Teh O",
         description: "Whole grain toast topped with smashed avocado, cherry tomatoes, and microgreens.",
-        price: 9.99,
-        image: "https://images.unsplash.com/photo-1603046891744-1f76eb10aec1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGF2b2NhZG8lMjB0b2FzdHxlbnwwfHwwfHx8MA%3D%3D",
-        category: "starters"
+        price: 2.50,
+        image: "https://images.unsplash.com/photo-1635217217664-578a7e17218f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dGVoJTIwYWlzfGVufDB8fDB8fHww",
+        category: "drinks"
     },
     {
         id: 3,
-        name: "Veggie Burger",
+        name: "Pancake",
         description: "Plant-based patty with lettuce, tomato, onion, and special sauce on a whole wheat bun.",
-        price: 14.99,
-        image: "https://images.unsplash.com/photo-1546545817-27f0fb4f50ca?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHZlZ2dpZSUyMGJ1cmdlcnxlbnwwfHwwfHx8MA%3D%3D",
-        category: "main"
+        price: 5.00,
+        image: "https://plus.unsplash.com/premium_photo-1672846027109-e2c91500afef?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFuY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
+        category: "desserts"
     },
     {
         id: 4,
-        name: "Fruit Smoothie",
+        name: "Jus Buah",
         description: "Blend of seasonal fruits with almond milk and a touch of honey.",
         price: 6.99,
         image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c21vb3RoaWV8ZW58MHx8MHx8fDA%3D",
@@ -34,23 +34,23 @@ const menuData = [
     },
     {
         id: 5,
-        name: "Quinoa Salad",
+        name: "Toast",
         description: "Fluffy quinoa with mixed vegetables, feta cheese, and lemon vinaigrette.",
-        price: 11.99,
-        image: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cXVpbm9hJTIwc2FsYWR8ZW58MHx8MHx8fDA%3D",
-        category: "main"
+        price: 6.00,
+        image: "https://images.unsplash.com/photo-1620921575116-fb8902865f81?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHRvYXN0fGVufDB8fDB8fHww",
+        category: "starters"
     },
     {
         id: 6,
-        name: "Sweet Potato Fries",
+        name: "Kentang Goreng",
         description: "Crispy sweet potato fries served with chipotle aioli.",
         price: 7.99,
-        image: "https://images.unsplash.com/photo-1603216215199-202626c47817?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8c3dlZXQlMjBwb3RhdG8lMjBmcmllc3xlbnwwfHwwfHx8MA%3D%3D",
+        image: "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJpZXN8ZW58MHx8MHx8fDA%3D",
         category: "starters"
     },
     {
         id: 7,
-        name: "Green Tea",
+        name: "Teh Hijau",
         description: "Organic green tea served hot or cold.",
         price: 3.99,
         image: "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z3JlZW4lMjB0ZWF8ZW58MHx8MHx8fDA%3D",
@@ -58,10 +58,10 @@ const menuData = [
     },
     {
         id: 8,
-        name: "Vegan Chocolate Cake",
+        name: "Kek Coklat",
         description: "Rich chocolate cake made with plant-based ingredients.",
         price: 8.99,
-        image: "https://images.unsplash.com/photo-1599785209796-786432b228bc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
+        image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
         category: "desserts"
     }
 ];
