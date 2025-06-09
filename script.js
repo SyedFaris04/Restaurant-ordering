@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load menu items
     if (document.getElementById('menuItems')) {
-        displayMenuItems(currentCategory);
+        (currentCategory);
         
         // Add event listeners to category buttons
         const categoryButtons = document.querySelectorAll('.category-btn');
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('active');
                 
                 // Display filtered menu items
-                displayMenuItems(category);
+                (category);
             });
         });
     }
@@ -227,7 +227,7 @@ function displayMenuItems(category) {
                 <div class="menu-item-info">
                     <h3 class="menu-item-title">${item.name}</h3>
                     <p class="menu-item-desc">${item.description}</p>
-                    <p class="menu-item-price">$${item.price.toFixed(2)}</p>
+                    <p class="menu-item-price">RM${item.price.toFixed(2)}</p>
                     <div class="menu-item-actions">
                         <div class="quantity-selector">
                             <button class="quantity-btn minus">-</button>
@@ -368,7 +368,7 @@ function displayCartItems() {
                     <img src="${item.image}" alt="${item.name}" class="cart-item-img">
                     <div>
                         <h4 class="cart-item-name">${item.name}</h4>
-                        <p class="cart-item-price">$${item.price.toFixed(2)}</p>
+                        <p class="cart-item-price">RM${item.price.toFixed(2)}</p>
                     </div>
                 </div>
                 <div class="cart-item-quantity">
@@ -488,11 +488,11 @@ function displayOrderSummary() {
         total += itemTotal;
         
         html += `
-            <p><strong>${item.name}</strong> x ${item.quantity} - $${itemTotal.toFixed(2)}</p>
+            <p><strong>${item.name}</strong> x ${item.quantity} - RM${itemTotal.toFixed(2)}</p>
         `;
     });
     
-    html += `<p class="total"><strong>Total: $${total.toFixed(2)}</strong></p>`;
+    html += `<p class="total"><strong>Total: RM${total.toFixed(2)}</strong></p>`;
     html += `<p>Your order will be ready in 30 minutes.</p>`;
     
     orderSummaryContainer.innerHTML = html;
