@@ -10,11 +10,11 @@ const menuData = [
     },
     {
         id: 2,
-        name: "Avocado Toast",
+        name: "Nasi Goreng Ayam",
         description: "Whole grain toast topped with smashed avocado, cherry tomatoes, and microgreens.",
         price: 9.99,
-        image: "https://images.unsplash.com/photo-1603046891744-1f76eb10aec1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGF2b2NhZG8lMjB0b2FzdHxlbnwwfHwwfHx8MA%3D%3D",
-        category: "starters"
+        image: "https://www.google.com/imgres?q=nasi%20goreng%20ayam&imgurl=https%3A%2F%2Ffast.ejazmine.com%2Fwp-content%2Fuploads%2F2021%2F09%2Fnasi-goreng-ayam.jpg&imgrefurl=https%3A%2F%2Ffast.ejazmine.com%2Fproduct%2Fnasi-goreng-ayam%2F&docid=K73i4WuI8FBThM&tbnid=dwwxAG4kcBJZOM&vet=12ahUKEwj9wfzxquSNAxXUbmwGHSqELtoQM3oECBsQAA..i&w=1440&h=1080&hcb=2&ved=2ahUKEwj9wfzxquSNAxXUbmwGHSqELtoQM3oECBsQAA",
+        category: "main"
     },
     {
         id: 3,
