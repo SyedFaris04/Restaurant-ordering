@@ -3,12 +3,13 @@
 // You can find this in your Firebase project settings.
 // --------------------------------------------------------------------
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBT4MPaGsjKbd9tJoAPCo6NqyGX-ZkUUfE",
+    authDomain: "kcsystem-55ca5.firebaseapp.com",
+    projectId: "kcsystem-55ca5",
+    storageBucket: "kcsystem-55ca5.firebasestorage.app",
+    messagingSenderId: "384255630133",
+    appId: "1:384255630133:web:b82198e919db0806484a7c",
+    measurementId: "G-6GZGQKXRYT"
 };
 
 // If you are using the immersive environment, these will be provided for you.
@@ -19,19 +20,28 @@ if (typeof __firebase_config !== 'undefined') {
 
 // Initialize Firebase App (conditionally)
 let db;
-if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+// Only attempt to initialize Firebase if the API key is not the placeholder
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
     // Dynamically import Firebase modules
     import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js")
         .then(({ initializeApp }) => {
             const app = initializeApp(firebaseConfig);
             return import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
-                .then(({ getFirestore, collection, addDoc, serverTimestamp }) => {
+                .then(({ getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs }) => {
                     db = getFirestore(app);
                     // Make firestore functions available globally or pass them where needed
-                    window.firestore = { collection, addDoc, serverTimestamp };
+                    window.firestore = { collection, addDoc, serverTimestamp, query, orderBy, getDocs };
+                    console.log("Firebase Firestore initialized.");
+
+                    // Re-display feedback after Firestore is ready
+                    if (document.getElementById('feedbackForm')) {
+                        displayFeedback();
+                    }
                 });
         })
         .catch(error => console.error("Firebase initialization failed:", error));
+} else {
+    console.warn("Firebase API key not set. Firebase will not be initialized. Check firebaseConfig.");
 }
 
 
@@ -82,7 +92,7 @@ const menuData = [
         name: "Kentang Goreng",
         description: "Kentang goreng rangup luar lembut dalam, disajikan dengan sos tomato dan mayonis.",
         price: 7.99,
-        image: "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJpZXN8ZW58MHx8MHx8MHx8fDA%3D",
+        image: "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJpZXN8ZW58MHx8MHx8fDA%3D",
         category: "starters"
     },
     {
@@ -130,16 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('checkout-form')) {
         document.getElementById('checkout-form').addEventListener('submit', placeOrder);
     }
-    
+
     if (document.getElementById('backToHomeBtn')) {
         document.getElementById('backToHomeBtn').addEventListener('click', () => {
             window.location.href = 'index.html';
         });
     }
 
+    // Only attempt to attach feedback listeners and display if the form exists
     if (document.getElementById('feedbackForm')) {
         document.getElementById('feedbackForm').addEventListener('submit', submitFeedback);
-        displayFeedback();
+        // Initial display will happen after Firestore is confirmed initialized
     }
 });
 
@@ -149,7 +160,7 @@ function renderMenu(filter = 'all') {
     if (!menuList) return;
 
     const filteredMenu = menuData.filter(item => filter === 'all' || item.category === filter);
-    
+
     let html = '';
     filteredMenu.forEach(item => {
         html += `
@@ -201,7 +212,7 @@ function addToCart(itemId, quantity = 1) {
         const itemToAdd = menuData.find(item => item.id === itemId);
         cart.push({ ...itemToAdd, quantity: quantity });
     }
-    
+
     saveCart();
     updateCartCount();
     showNotification(`${menuData.find(i => i.id === itemId).name} added to cart!`);
@@ -232,7 +243,7 @@ function updateCartCount() {
         el.textContent = totalItems;
         el.style.display = totalItems > 0 ? 'inline-flex' : 'none';
     });
-    
+
     // Also update floating cart visibility
     const floatingCart = document.getElementById('floatingCart');
     if (floatingCart) {
@@ -290,7 +301,7 @@ function renderCart() {
             updateCart(id, quantity);
         });
     });
-    
+
     document.querySelectorAll('.remove-item-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const id = parseInt(e.target.dataset.id);
@@ -307,7 +318,7 @@ async function placeOrder(e) {
         console.error("Firestore is not initialized.");
         return;
     }
-    
+
     const { collection, addDoc, serverTimestamp } = window.firestore;
 
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -337,7 +348,7 @@ async function placeOrder(e) {
         document.querySelector('.checkout-section').style.display = 'none';
         const orderSuccessEl = document.getElementById('orderSuccess');
         orderSuccessEl.style.display = 'block';
-        
+
         const summaryHtml = `
             <h4>Order #${docRef.id.substring(0, 5).toUpperCase()}</h4>
             <p>Total: RM${total.toFixed(2)}</p>
@@ -351,7 +362,7 @@ async function placeOrder(e) {
     } catch (error) {
         console.error("Error adding document: ", error);
         alert("There was an error placing your order. Please try again.");
-         // Re-enable button
+        // Re-enable button
         const placeOrderBtn = document.getElementById('placeOrderBtn');
         placeOrderBtn.disabled = false;
         placeOrderBtn.textContent = 'Place Order';
@@ -364,12 +375,12 @@ function showNotification(message) {
     notification.className = 'notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     // Trigger animation
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
@@ -380,7 +391,7 @@ function showNotification(message) {
 }
 
 // Feedback functions
-function submitFeedback(e) {
+async function submitFeedback(e) {
     e.preventDefault();
     const name = document.getElementById('customerName').value;
     const rating = document.getElementById('rating').value;
@@ -391,66 +402,84 @@ function submitFeedback(e) {
         return;
     }
 
+    if (!db || !window.firestore) {
+        alert("Database is not ready. Please try again in a moment.");
+        console.error("Firestore is not initialized.");
+        return;
+    }
+
+    const { collection, addDoc, serverTimestamp } = window.firestore;
+
     const feedback = {
         name,
-        rating,
+        rating: parseInt(rating), // Ensure rating is a number
         comment,
-        date: new Date().toLocaleDateString('en-GB')
+        timestamp: serverTimestamp() // Use server-side timestamp for consistent ordering
     };
-    
-    saveFeedback(feedback);
-    displayFeedback();
-    
-    // Show a thank you message and clear the form
-    document.getElementById('feedbackForm').reset();
-    alert('Thank you for your feedback!');
-}
 
-function saveFeedback(feedback) {
-    // We can also save this to Firestore later if needed
-    let feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
-    feedbackList.push(feedback);
-    localStorage.setItem('feedback', JSON.stringify(feedbackList));
+    try {
+        await addDoc(collection(db, "feedback"), feedback);
+        console.log("Feedback submitted successfully!");
+        alert('Thank you for your feedback!');
+        document.getElementById('feedbackForm').reset();
+        displayFeedback(); // Re-display feedback to show the new entry
+    } catch (error) {
+        console.error("Error adding feedback: ", error);
+        alert("There was an error submitting your feedback. Please try again.");
+    }
 }
 
 // Display feedback on feedback page
-function displayFeedback() {
+async function displayFeedback() {
     const feedbackListContainer = document.getElementById('feedbackList');
     if (!feedbackListContainer) return;
-    
-    const feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
-    
-    if (feedbackList.length === 0) {
-        feedbackListContainer.innerHTML = '<p>No feedback yet. Be the first to leave a review!</p>';
+
+    if (!db || !window.firestore) {
+        // Display a message if Firestore isn't ready yet
+        feedbackListContainer.innerHTML = '<p>Loading feedback...</p>';
         return;
     }
-    
-    let html = '';
-    
-    // Sort feedback by date (most recent first)
-    feedbackList.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    feedbackList.forEach(feedback => {
-        let stars = '';
-        for (let i = 0; i < 5; i++) {
-            if (i < feedback.rating) {
-                stars += '★';
-            } else {
-                stars += '☆';
-            }
+
+    const { collection, query, orderBy, getDocs } = window.firestore;
+
+    try {
+        const feedbackQuery = query(collection(db, "feedback"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(feedbackQuery);
+
+        if (querySnapshot.empty) {
+            feedbackListContainer.innerHTML = '<p>No feedback yet. Be the first to leave a review!</p>';
+            return;
         }
-        
-        html += `
-            <div class="feedback-item">
-                <div class="feedback-item-header">
-                    <span class="feedback-item-name">${feedback.name}</span>
-                    <span class="feedback-item-rating">${stars}</span>
+
+        let html = '';
+        querySnapshot.forEach(doc => {
+            const feedback = doc.data();
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < feedback.rating) {
+                    stars += '★';
+                } else {
+                    stars += '☆';
+                }
+            }
+            // Use feedback.timestamp.toDate() if it's a Firestore Timestamp, otherwise use new Date()
+            const feedbackDate = feedback.timestamp ? new Date(feedback.timestamp.toDate()).toLocaleDateString('en-GB') : 'N/A';
+
+            html += `
+                <div class="feedback-item">
+                    <div class="feedback-item-header">
+                        <span class="feedback-item-name">${feedback.name}</span>
+                        <span class="feedback-item-rating">${stars}</span>
+                    </div>
+                    <p class="feedback-item-comment">${feedback.comment}</p>
+                    <small>${feedbackDate}</small>
                 </div>
-                <p class="feedback-item-comment">${feedback.comment}</p>
-                <small>${feedback.date}</small>
-            </div>
-        `;
-    });
-    
-    feedbackListContainer.innerHTML = html;
+            `;
+        });
+
+        feedbackListContainer.innerHTML = html;
+    } catch (error) {
+        console.error("Error fetching feedback: ", error);
+        feedbackListContainer.innerHTML = '<p>Error loading feedback. Please try again later.</p>';
+    }
 }
