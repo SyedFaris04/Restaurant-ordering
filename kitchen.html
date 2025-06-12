@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe KC - Kitchen Display</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header h1 {
+            color: var(--primary-dark);
+        }
+        .orders-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .order-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .order-card.completed {
+            background-color: #e8f5e9; /* Light green */
+            opacity: 0.7;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .order-header h3 {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+        }
+        .order-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .order-items ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        .order-items li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .order-items li:last-child {
+            border-bottom: none;
+        }
+        .order-items .item-name {
+            font-weight: 500;
+        }
+        .order-items .item-quantity {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .order-total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        .order-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .complete-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .complete-btn:hover {
+             background-color: #388e3c;
+        }
+        #no-orders {
+            text-align: center;
+            width: 100%;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>Kitchen Live Orders</h1>
+    </header>
+
+    <main>
+        <div class="orders-container" id="ordersContainer">
+            <p id="no-orders">Listening for new orders...</p>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // --------------------------------------------------------------------
+        // IMPORTANT: Paste your Firebase project's configuration object here.
+        // You can find this in your Firebase project settings.
+        // --------------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // If you are using the immersive environment, these will be provided for you.
+        if (typeof __firebase_config !== 'undefined') {
+            Object.assign(firebaseConfig, JSON.parse(__firebase_config));
+        }
+
+        // Import statements for Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Sign in anonymously to secure the connection
+        signInAnonymously(auth).catch((error) => {
+            console.error("Anonymous sign-in failed:", error);
+        });
+
+        const ordersContainer = document.getElementById('ordersContainer');
+        const noOrdersMessage = document.getElementById('no-orders');
+
+        /**
+         * Listens for real-time updates to the orders collection in Firestore
+         * and renders them on the page.
+         */
+        function listenForOrders() {
+            const ordersRef = collection(db, "orders");
+            // Create a query to get only active orders, sorted by time
+            const q = query(ordersRef, where("status", "==", "active"));
+
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    ordersContainer.innerHTML = '<p id="no-orders">No active orders right now.</p>';
+                    return;
+                }
+
+                // Clear existing orders to prevent duplication
+                ordersContainer.innerHTML = '';
+                snapshot.docChanges().forEach((change) => {
+                     if (change.type === "added") {
+                        const order = change.doc.data();
+                        const orderId = change.doc.id;
+                        const orderCard = createOrderCard(order, orderId);
+                        // Add new orders to the top
+                        ordersContainer.prepend(orderCard);
+                    }
+                    if (change.type === "removed") {
+                        const orderId = change.doc.id;
+                        const orderCard = document.getElementById(`order-${orderId}`);
+                        if (orderCard) {
+                            orderCard.remove();
+                        }
+                    }
+                });
+
+                 // Check if there are any cards left
+                if (ordersContainer.children.length === 0){
+                     ordersContainer.innerHTML = '<p id="no-orders">No active orders right now.</p>';
+                }
+
+
+            }, (error) => {
+                console.error("Error listening for orders:", error);
+                ordersContainer.innerHTML = '<p id="no-orders" style="color:red;">Error loading orders. Check console.</p>';
+            });
+        }
+
+
+        /**
+         * Creates an HTML element for a single order.
+         * @param {object} order - The order data from Firestore.
+         * @param {string} orderId - The document ID of the order.
+         * @returns {HTMLElement} The created order card element.
+         */
+        function createOrderCard(order, orderId) {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.id = `order-${orderId}`;
+
+            const orderTime = order.timestamp.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            let itemsHtml = '<ul>';
+            order.items.forEach(item => {
+                itemsHtml += `<li><span class="item-name">${item.name}</span><span class="item-quantity">x${item.quantity}</span></li>`;
+            });
+            itemsHtml += '</ul>';
+
+            card.innerHTML = `
+                <div class="order-header">
+                    <h3>Order #${orderId.substring(0, 5).toUpperCase()}</h3>
+                    <span class="order-time">${orderTime}</span>
+                </div>
+                <div class="order-items">
+                    ${itemsHtml}
+                </div>
+                <div class="order-total">
+                    Total: RM${order.total.toFixed(2)}
+                </div>
+                <div class="order-actions">
+                    <button class="btn complete-btn">Mark as Complete</button>
+                </div>
+            `;
+
+            // Add event listener to the "Mark as Complete" button
+            card.querySelector('.complete-btn').addEventListener('click', () => {
+                markOrderAsComplete(orderId, card);
+            });
+
+            return card;
+        }
+
+        /**
+         * Updates an order's status to "completed" in Firestore.
+         * @param {string} orderId - The ID of the order to update.
+         * @param {HTMLElement} cardElement - The HTML element of the card to update its style.
+         */
+        async function markOrderAsComplete(orderId, cardElement) {
+            const orderRef = doc(db, "orders", orderId);
+            try {
+                await updateDoc(orderRef, {
+                    status: "completed"
+                });
+                console.log(`Order ${orderId} marked as complete.`);
+                cardElement.classList.add('completed');
+                // The onSnapshot listener will handle removing it from the view
+            } catch (error) {
+                console.error("Error updating order status:", error);
+                alert("Could not complete the order. Please try again.");
+            }
+        }
+
+
+        // Start listening for orders when the page loads
+        window.onload = function() {
+            listenForOrders();
+        }
+    </script>
+
+</body>
+</html>
