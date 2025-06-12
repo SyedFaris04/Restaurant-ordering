@@ -1,50 +1,3 @@
-// --------------------------------------------------------------------
-// IMPORTANT: Paste your Firebase project's configuration object here.
-// You can find this in your Firebase project settings.
-// --------------------------------------------------------------------
-const firebaseConfig = {
-    apiKey: "AIzaSyBT4MPaGsjKbd9tJoAPCo6NqyGX-ZkUUfE",
-    authDomain: "kcsystem-55ca5.firebaseapp.com",
-    projectId: "kcsystem-55ca5",
-    storageBucket: "kcsystem-55ca5.firebasestorage.app",
-    messagingSenderId: "384255630133",
-    appId: "1:384255630133:web:b82198e919db0806484a7c",
-    measurementId: "G-6GZGQKXRYT"
-};
-
-// If you are using the immersive environment, these will be provided for you.
-if (typeof __firebase_config !== 'undefined') {
-    Object.assign(firebaseConfig, JSON.parse(__firebase_config));
-}
-
-
-// Initialize Firebase App (conditionally)
-let db;
-// Only attempt to initialize Firebase if the API key is not the placeholder
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-    // Dynamically import Firebase modules
-    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js")
-        .then(({ initializeApp }) => {
-            const app = initializeApp(firebaseConfig);
-            return import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
-                .then(({ getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs }) => {
-                    db = getFirestore(app);
-                    // Make firestore functions available globally or pass them where needed
-                    window.firestore = { collection, addDoc, serverTimestamp, query, orderBy, getDocs };
-                    console.log("Firebase Firestore initialized.");
-
-                    // Re-display feedback after Firestore is ready
-                    if (document.getElementById('feedbackForm')) {
-                        displayFeedback();
-                    }
-                });
-        })
-        .catch(error => console.error("Firebase initialization failed:", error));
-} else {
-    console.warn("Firebase API key not set. Firebase will not be initialized. Check firebaseConfig.");
-}
-
-
 // Menu data
 const menuData = [
     {
@@ -100,386 +53,496 @@ const menuData = [
         name: "Teh Hijau",
         description: "Teh hijau asli yang menyegarkan, boleh dihidangkan panas atau sejuk.",
         price: 3.99,
-        image: "https://images.unsplash.com/photo-1627435601361-ec2556d809a5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Z3JlZW4lMjB0ZWF8ZW58MHx8MHx8fDA%3D",
+        image: "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z3JlZW4lMjB0ZWF8ZW58MHx8MHx8fDA%3D",
         category: "drinks"
     },
     {
         id: 8,
         name: "Kek Coklat",
-        description: "Kek coklat lembap yang kaya dengan rasa coklat, dihiasi dengan ganache coklat.",
-        price: 8.50,
-        image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
+        description: "Kek coklat lembut dengan lapisan ganache yang kaya dan sedap.",
+        price: 8.99,
+        image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D",
         category: "desserts"
     }
 ];
 
-// Cart state
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
+// Global variables
+let cart = [];
+let currentCategory = 'all';
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Run on all pages
+// DOM elements
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the page
+    loadCart();
     updateCartCount();
-
-    // Run only on pages where these elements exist
-    if (document.getElementById('menuList')) {
-        renderMenu();
-        addMenuFilterListener();
+    
+    // Load menu items
+    if (document.getElementById('menuItems')) {
+        displayMenuItems(currentCategory);
+        
+        // Add event listeners to category buttons
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                currentCategory = category;
+                
+                // Update active class
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Display filtered menu items
+                displayMenuItems(category);
+            });
+        });
     }
-
-    if (document.getElementById('cartItems')) {
-        renderCart();
-    }
-
-    if (document.getElementById('floatingCart')) {
-        document.getElementById('floatingCart').addEventListener('click', () => {
+    
+    // Floating cart button
+    const floatingCart = document.getElementById('floatingCart');
+    if (floatingCart) {
+        floatingCart.addEventListener('click', function() {
             window.location.href = 'checkout.html';
         });
     }
-
-    if (document.getElementById('checkout-form')) {
-        document.getElementById('checkout-form').addEventListener('submit', placeOrder);
-    }
-
-    if (document.getElementById('backToHomeBtn')) {
-        document.getElementById('backToHomeBtn').addEventListener('click', () => {
-            window.location.href = 'index.html';
+    
+    // Checkout page functionality
+    if (window.location.pathname.includes('checkout.html')) {
+        displayCartItems();
+        
+        // Toggle delivery address fields
+        const deliveryOptions = document.querySelectorAll('input[name="deliveryOption"]');
+        deliveryOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                const addressFields = document.getElementById('addressFields');
+                if (this.value === 'delivery') {
+                    addressFields.classList.remove('hidden');
+                } else {
+                    addressFields.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Toggle reference ID field
+        const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+        paymentMethods.forEach(method => {
+            method.addEventListener('change', function() {
+                const referenceField = document.getElementById('referenceField');
+                if (this.value === 'online') {
+                    referenceField.classList.remove('hidden');
+                } else {
+                    referenceField.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Order form submission
+        const orderForm = document.getElementById('orderForm');
+        orderForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateOrderForm()) {
+                return;
+            }
+            
+            // Show confirmation modal
+            const modal = document.getElementById('orderConfirmModal');
+            modal.classList.add('active');
+            
+            // Display order summary in modal
+            displayOrderSummary();
+            
+            // Add event listener to close button
+            const closeBtn = document.querySelector('.close-btn');
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+            });
+            
+            // Add event listener to "Back to Home" button
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            backToHomeBtn.addEventListener('click', function() {
+                // Clear cart and redirect to home page
+                localStorage.removeItem('cart');
+                window.location.href = 'index.html';
+            });
         });
     }
-
-    // Only attempt to attach feedback listeners and display if the form exists
-    if (document.getElementById('feedbackForm')) {
-        document.getElementById('feedbackForm').addEventListener('submit', submitFeedback);
-        // Initial display will happen after Firestore is confirmed initialized
+    
+    // Feedback page functionality
+    if (window.location.pathname.includes('feedback.html')) {
+        displayFeedback();
+        
+        // Feedback form submission
+        const feedbackForm = document.getElementById('feedbackForm');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('feedbackName').value;
+                const rating = document.querySelector('input[name="rating"]:checked')?.value || '5';
+                const comment = document.getElementById('comment').value;
+                
+                // Create feedback object
+                const feedback = {
+                    name,
+                    rating,
+                    comment,
+                    date: new Date().toLocaleDateString()
+                };
+                
+                // Save feedback to localStorage
+                saveFeedback(feedback);
+                
+                // Clear form
+                feedbackForm.reset();
+                
+                // Update feedback display
+                displayFeedback();
+                
+                // Show success message
+                alert('Thank you for your feedback!');
+            });
+        }
     }
 });
 
-// Menu functions
-function renderMenu(filter = 'all') {
-    const menuList = document.getElementById('menuList');
-    if (!menuList) return;
-
-    const filteredMenu = menuData.filter(item => filter === 'all' || item.category === filter);
-
+// Display menu items
+function displayMenuItems(category) {
+    const menuItemsContainer = document.getElementById('menuItems');
+    if (!menuItemsContainer) return;
+    
+    // Filter menu items by category
+    let filteredItems = menuData;
+    if (category !== 'all') {
+        filteredItems = menuData.filter(item => item.category === category);
+    }
+    
+    // Create HTML for menu items
     let html = '';
-    filteredMenu.forEach(item => {
+    filteredItems.forEach(item => {
         html += `
-            <div class="menu-item">
-                <img src="${item.image}" alt="${item.name}" loading="lazy">
-                <div class="menu-item-content">
-                    <h3>${item.name}</h3>
-                    <p>${item.description}</p>
-                    <div class="menu-item-footer">
-                        <span class="price">RM${item.price.toFixed(2)}</span>
-                        <button class="btn btn-primary add-to-cart-btn" data-id="${item.id}">Add to Cart</button>
+            <div class="menu-item" data-id="${item.id}">
+                <img src="${item.image}" alt="${item.name}" class="menu-item-img">
+                <div class="menu-item-info">
+                    <h3 class="menu-item-title">${item.name}</h3>
+                    <p class="menu-item-desc">${item.description}</p>
+                    <p class="menu-item-price">RM${item.price.toFixed(2)}</p>
+                    <div class="menu-item-actions">
+                        <div class="quantity-selector">
+                            <button class="quantity-btn minus">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                        <button class="add-to-cart-btn">Add to Cart</button>
                     </div>
                 </div>
             </div>
         `;
     });
-    menuList.innerHTML = html;
-
+    
+    menuItemsContainer.innerHTML = html;
+    
+    // Add event listeners to quantity buttons
+    const minusButtons = document.querySelectorAll('.minus');
+    const plusButtons = document.querySelectorAll('.plus');
+    
+    minusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.nextElementSibling;
+            const value = parseInt(input.value);
+            if (value > 1) {
+                input.value = value - 1;
+            }
+        });
+    });
+    
+    plusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const value = parseInt(input.value);
+            if (value < 10) {
+                input.value = value + 1;
+            }
+        });
+    });
+    
     // Add event listeners to "Add to Cart" buttons
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = parseInt(e.target.getAttribute('data-id'));
-            addToCart(id);
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const menuItem = this.closest('.menu-item');
+            const itemId = parseInt(menuItem.getAttribute('data-id'));
+            const quantity = parseInt(menuItem.querySelector('.quantity-input').value);
+            
+            addToCart(itemId, quantity);
         });
     });
 }
 
-function addMenuFilterListener() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterBtns.forEach(b => b.classList.remove('active'));
-            // Add active class to the clicked button
-            btn.classList.add('active');
-            // Render the menu with the selected filter
-            renderMenu(btn.dataset.filter);
-        });
-    });
-}
-
-// Cart functions
-function addToCart(itemId, quantity = 1) {
-    const itemInCart = cart.find(item => item.id === itemId);
-
-    if (itemInCart) {
-        itemInCart.quantity += quantity;
+// Add item to cart
+function addToCart(itemId, quantity) {
+    // Find menu item by ID
+    const menuItem = menuData.find(item => item.id === itemId);
+    if (!menuItem) return;
+    
+    // Check if item already exists in cart
+    const existingItem = cart.find(item => item.id === itemId);
+    
+    if (existingItem) {
+        // Update quantity if item already exists
+        existingItem.quantity += quantity;
     } else {
-        const itemToAdd = menuData.find(item => item.id === itemId);
-        cart.push({ ...itemToAdd, quantity: quantity });
+        // Add new item to cart
+        cart.push({
+            id: menuItem.id,
+            name: menuItem.name,
+            price: menuItem.price,
+            image: menuItem.image,
+            quantity: quantity
+        });
     }
-
+    
+    // Save cart to localStorage
     saveCart();
+    
+    // Update cart count
     updateCartCount();
-    showNotification(`${menuData.find(i => i.id === itemId).name} added to cart!`);
+    
+    // Show success message
+    alert(`${menuItem.name} added to cart!`);
 }
 
-function updateCart(itemId, quantity) {
-    const itemInCart = cart.find(item => item.id === itemId);
-    if (itemInCart) {
-        if (quantity > 0) {
-            itemInCart.quantity = quantity;
-        } else {
-            cart = cart.filter(item => item.id !== itemId);
-        }
-    }
-    saveCart();
-    updateCartCount();
-    renderCart(); // Re-render the cart on the checkout page
-}
-
+// Save cart to localStorage
 function saveCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-function updateCartCount() {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountElements = document.querySelectorAll('.cart-count');
-    cartCountElements.forEach(el => {
-        el.textContent = totalItems;
-        el.style.display = totalItems > 0 ? 'inline-flex' : 'none';
-    });
-
-    // Also update floating cart visibility
-    const floatingCart = document.getElementById('floatingCart');
-    if (floatingCart) {
-        floatingCart.style.display = totalItems > 0 ? 'flex' : 'none';
+// Load cart from localStorage
+function loadCart() {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
     }
 }
 
-function renderCart() {
+// Update cart count
+function updateCartCount() {
+    const cartCountNav = document.getElementById('cartCountNav');
+    const cartCountFloat = document.getElementById('cartCountFloat');
+    
+    const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+    
+    if (cartCountNav) {
+        cartCountNav.textContent = itemCount;
+    }
+    
+    if (cartCountFloat) {
+        cartCountFloat.textContent = itemCount;
+    }
+}
+
+// Display cart items on checkout page
+function displayCartItems() {
     const cartItemsContainer = document.getElementById('cartItems');
-    const cartTotalContainer = document.getElementById('cartTotal');
-    const checkoutForm = document.getElementById('checkout-form');
-
-    if (!cartItemsContainer) return;
-
+    const cartTotalElement = document.getElementById('cartTotal');
+    
+    if (!cartItemsContainer || !cartTotalElement) return;
+    
     if (cart.length === 0) {
-        document.querySelector('.checkout-container').innerHTML = `
-            <div class="cart-empty">
-                <p>Your cart is empty.</p>
-                <a href="index.html#menu" class="btn btn-primary">Go to Menu</a>
-            </div>
-        `;
+        cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+        cartTotalElement.textContent = 'RM0.00';
         return;
     }
-
+    
     let html = '';
     let total = 0;
+    
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
+        
         html += `
-            <div class="cart-item">
-                <img src="${item.image}" alt="${item.name}">
-                <div class="cart-item-details">
-                    <h4>${item.name}</h4>
-                    <p>RM${item.price.toFixed(2)}</p>
+            <div class="cart-item" data-id="${item.id}">
+                <div class="cart-item-info">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                    <div>
+                        <h4 class="cart-item-name">${item.name}</h4>
+                        <p class="cart-item-price">RM${item.price.toFixed(2)}</p>
+                    </div>
                 </div>
                 <div class="cart-item-quantity">
-                    <input type="number" value="${item.quantity}" min="1" class="quantity-input" data-id="${item.id}">
+                    <button class="quantity-btn cart-minus">-</button>
+                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10" readonly>
+                    <button class="quantity-btn cart-plus">+</button>
+                    <button class="cart-remove-btn">×</button>
                 </div>
-                <div class="cart-item-total">
-                    RM${itemTotal.toFixed(2)}
-                </div>
-                <button class="remove-item-btn" data-id="${item.id}">&times;</button>
             </div>
         `;
     });
+    
     cartItemsContainer.innerHTML = html;
-    cartTotalContainer.textContent = `RM${total.toFixed(2)}`;
-
-    // Add event listeners for quantity changes and remove buttons
-    document.querySelectorAll('.quantity-input').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const id = parseInt(e.target.dataset.id);
-            const quantity = parseInt(e.target.value);
-            updateCart(id, quantity);
+    cartTotalElement.textContent = `RM${total.toFixed(2)}`;
+    
+    // Add event listeners to cart quantity buttons
+    const minusButtons = cartItemsContainer.querySelectorAll('.cart-minus');
+    const plusButtons = cartItemsContainer.querySelectorAll('.cart-plus');
+    const removeButtons = cartItemsContainer.querySelectorAll('.cart-remove-btn');
+    
+    minusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const cartItem = this.closest('.cart-item');
+            const itemId = parseInt(cartItem.getAttribute('data-id'));
+            updateCartItemQuantity(itemId, -1);
         });
     });
-
-    document.querySelectorAll('.remove-item-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = parseInt(e.target.dataset.id);
-            updateCart(id, 0); // Setting quantity to 0 removes the item
+    
+    plusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const cartItem = this.closest('.cart-item');
+            const itemId = parseInt(cartItem.getAttribute('data-id'));
+            updateCartItemQuantity(itemId, 1);
+        });
+    });
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const cartItem = this.closest('.cart-item');
+            const itemId = parseInt(cartItem.getAttribute('data-id'));
+            removeCartItem(itemId);
         });
     });
 }
 
-// Order function
-async function placeOrder(e) {
-    e.preventDefault();
-    if (!db || !window.firestore) {
-        alert("Database is not ready. Please try again in a moment.");
-        console.error("Firestore is not initialized.");
-        return;
+// Update cart item quantity
+function updateCartItemQuantity(itemId, change) {
+    const item = cart.find(item => item.id === itemId);
+    if (!item) return;
+    
+    item.quantity += change;
+    
+    if (item.quantity < 1) {
+        item.quantity = 1;
     }
+    
+    if (item.quantity > 10) {
+        item.quantity = 10;
+    }
+    
+    saveCart();
+    displayCartItems();
+    updateCartCount();
+}
 
-    const { collection, addDoc, serverTimestamp } = window.firestore;
+// Remove item from cart
+function removeCartItem(itemId) {
+    cart = cart.filter(item => item.id !== itemId);
+    saveCart();
+    displayCartItems();
+    updateCartCount();
+}
 
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const orderDetails = {
-        items: cart,
-        total: total,
-        status: 'active', // 'active', 'completed'
-        timestamp: serverTimestamp() // Use server-side timestamp
-    };
+// Validate order form
+function validateOrderForm() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const deliveryOption = document.querySelector('input[name="deliveryOption"]:checked').value;
+    const address = document.getElementById('address').value;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const reference = document.getElementById('reference').value;
+    
+    if (!name || !email || !phone) {
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    if (deliveryOption === 'delivery' && !address) {
+        alert('Please enter a delivery address.');
+        return false;
+    }
+    
+    if (paymentMethod === 'online' && !reference) {
+        alert('Please enter a reference ID for online payment.');
+        return false;
+    }
+    
+    if (cart.length === 0) {
+        alert('Your cart is empty. Please add items to your cart before placing an order.');
+        return false;
+    }
+    
+    return true;
+}
 
-    try {
-        // Show loading state
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        placeOrderBtn.disabled = true;
-        placeOrderBtn.textContent = 'Placing Order...';
-
-        // Add a new document with a generated ID to the 'orders' collection.
-        const docRef = await addDoc(collection(db, "orders"), orderDetails);
-        console.log("Order placed with ID: ", docRef.id);
-
-        // Clear local cart
-        cart = [];
-        saveCart();
-        updateCartCount();
-
-        // Show success message
-        document.querySelector('.checkout-section').style.display = 'none';
-        const orderSuccessEl = document.getElementById('orderSuccess');
-        orderSuccessEl.style.display = 'block';
-
-        const summaryHtml = `
-            <h4>Order #${docRef.id.substring(0, 5).toUpperCase()}</h4>
-            <p>Total: RM${total.toFixed(2)}</p>
-            <ul>
-              ${orderDetails.items.map(i => `<li>${i.name} x ${i.quantity}</li>`).join('')}
-            </ul>
+// Display order summary in confirmation modal
+function displayOrderSummary() {
+    const orderSummaryContainer = document.getElementById('orderSummary');
+    if (!orderSummaryContainer) return;
+    
+    let html = '<h3>Order Details:</h3>';
+    let total = 0;
+    
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        
+        html += `
+            <p><strong>${item.name}</strong> x ${item.quantity} - RM${itemTotal.toFixed(2)}</p>
         `;
-        document.getElementById('orderSummary').innerHTML = summaryHtml;
-
-
-    } catch (error) {
-        console.error("Error adding document: ", error);
-        alert("There was an error placing your order. Please try again.");
-        // Re-enable button
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        placeOrderBtn.disabled = false;
-        placeOrderBtn.textContent = 'Place Order';
-    }
+    });
+    
+    html += `<p class="total"><strong>Total: RM${total.toFixed(2)}</strong></p>`;
+    html += `<p>Your order will be ready in 30 minutes.</p>`;
+    
+    orderSummaryContainer.innerHTML = html;
 }
 
-// Utility functions
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    // Trigger animation
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 500);
-    }, 3000);
-}
-
-// Feedback functions
-async function submitFeedback(e) {
-    e.preventDefault();
-    const name = document.getElementById('customerName').value;
-    const rating = document.getElementById('rating').value;
-    const comment = document.getElementById('comment').value;
-
-    if (!name || !rating || !comment) {
-        alert('Please fill out all fields.');
-        return;
-    }
-
-    if (!db || !window.firestore) {
-        alert("Database is not ready. Please try again in a moment.");
-        console.error("Firestore is not initialized.");
-        return;
-    }
-
-    const { collection, addDoc, serverTimestamp } = window.firestore;
-
-    const feedback = {
-        name,
-        rating: parseInt(rating), // Ensure rating is a number
-        comment,
-        timestamp: serverTimestamp() // Use server-side timestamp for consistent ordering
-    };
-
-    try {
-        await addDoc(collection(db, "feedback"), feedback);
-        console.log("Feedback submitted successfully!");
-        alert('Thank you for your feedback!');
-        document.getElementById('feedbackForm').reset();
-        displayFeedback(); // Re-display feedback to show the new entry
-    } catch (error) {
-        console.error("Error adding feedback: ", error);
-        alert("There was an error submitting your feedback. Please try again.");
-    }
+// Save feedback to localStorage
+function saveFeedback(feedback) {
+    let feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
+    feedbackList.push(feedback);
+    localStorage.setItem('feedback', JSON.stringify(feedbackList));
 }
 
 // Display feedback on feedback page
-async function displayFeedback() {
+function displayFeedback() {
     const feedbackListContainer = document.getElementById('feedbackList');
     if (!feedbackListContainer) return;
-
-    if (!db || !window.firestore) {
-        // Display a message if Firestore isn't ready yet
-        feedbackListContainer.innerHTML = '<p>Loading feedback...</p>';
+    
+    const feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
+    
+    if (feedbackList.length === 0) {
+        feedbackListContainer.innerHTML = '<p>No feedback yet. Be the first to leave a review!</p>';
         return;
     }
-
-    const { collection, query, orderBy, getDocs } = window.firestore;
-
-    try {
-        const feedbackQuery = query(collection(db, "feedback"), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(feedbackQuery);
-
-        if (querySnapshot.empty) {
-            feedbackListContainer.innerHTML = '<p>No feedback yet. Be the first to leave a review!</p>';
-            return;
-        }
-
-        let html = '';
-        querySnapshot.forEach(doc => {
-            const feedback = doc.data();
-            let stars = '';
-            for (let i = 0; i < 5; i++) {
-                if (i < feedback.rating) {
-                    stars += '★';
-                } else {
-                    stars += '☆';
-                }
+    
+    let html = '';
+    
+    // Sort feedback by date (most recent first)
+    feedbackList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    feedbackList.forEach(feedback => {
+        let stars = '';
+        for (let i = 0; i < 5; i++) {
+            if (i < feedback.rating) {
+                stars += '★';
+            } else {
+                stars += '☆';
             }
-            // Use feedback.timestamp.toDate() if it's a Firestore Timestamp, otherwise use new Date()
-            const feedbackDate = feedback.timestamp ? new Date(feedback.timestamp.toDate()).toLocaleDateString('en-GB') : 'N/A';
-
-            html += `
-                <div class="feedback-item">
-                    <div class="feedback-item-header">
-                        <span class="feedback-item-name">${feedback.name}</span>
-                        <span class="feedback-item-rating">${stars}</span>
-                    </div>
-                    <p class="feedback-item-comment">${feedback.comment}</p>
-                    <small>${feedbackDate}</small>
+        }
+        
+        html += `
+            <div class="feedback-item">
+                <div class="feedback-item-header">
+                    <span class="feedback-item-name">${feedback.name}</span>
+                    <span class="feedback-item-rating">${stars}</span>
                 </div>
-            `;
-        });
-
-        feedbackListContainer.innerHTML = html;
-    } catch (error) {
-        console.error("Error fetching feedback: ", error);
-        feedbackListContainer.innerHTML = '<p>Error loading feedback. Please try again later.</p>';
-    }
+                <p class="feedback-item-comment">${feedback.comment}</p>
+                <small>${feedback.date}</small>
+            </div>
+        `;
+    });
+    
+    feedbackListContainer.innerHTML = html;
 }
