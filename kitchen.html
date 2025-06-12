@@ -103,7 +103,7 @@
             color: white;
         }
         .complete-btn:hover {
-             background-color: #388e3c;
+            background-color: #388e3c;
         }
         #no-orders {
             text-align: center;
@@ -126,19 +126,18 @@
         </div>
     </main>
 
-    <!-- Firebase SDK -->
     <script type="module">
         // --------------------------------------------------------------------
         // IMPORTANT: Paste your Firebase project's configuration object here.
         // You can find this in your Firebase project settings.
         // --------------------------------------------------------------------
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBT4MPaGsjKbd9tJoAPCo6NqyGX-ZkUUfE",
+            authDomain: "kcsystem-55ca5.firebaseapp.com",
+            projectId: "kcsystem-55ca5",
+            storageBucket: "kcsystem-55ca5.firebasestorage.app",
+            messagingSenderId: "384255630133",
+            appId: "1:384255630133:web:b82198e919db0806484a7c"
         };
 
         // If you are using the immersive environment, these will be provided for you.
@@ -160,10 +159,12 @@
         // Sign in anonymously to secure the connection
         signInAnonymously(auth).catch((error) => {
             console.error("Anonymous sign-in failed:", error);
+            // Optionally, display an error message to the user
+            ordersContainer.innerHTML = '<p id="no-orders" style="color:red;">Error connecting to Firebase. Please check console.</p>';
         });
 
         const ordersContainer = document.getElementById('ordersContainer');
-        const noOrdersMessage = document.getElementById('no-orders');
+        const noOrdersMessage = document.getElementById('no-orders'); // Although now handled inside listenForOrders
 
         /**
          * Listens for real-time updates to the orders collection in Firestore
@@ -171,39 +172,54 @@
          */
         function listenForOrders() {
             const ordersRef = collection(db, "orders");
-            // Create a query to get only active orders, sorted by time
-            const q = query(ordersRef, where("status", "==", "active"));
+            // Create a query to get only active orders, sorted by timestamp (most recent first)
+            const q = query(ordersRef, where("status", "==", "active"), orderBy("timestamp", "desc"));
 
             onSnapshot(q, (snapshot) => {
-                if (snapshot.empty) {
+                // Remove the "no orders" message if it exists
+                const existingNoOrdersMessage = document.getElementById('no-orders');
+                if (existingNoOrdersMessage) {
+                    existingNoOrdersMessage.remove();
+                }
+
+                if (snapshot.empty && ordersContainer.children.length === 0) {
                     ordersContainer.innerHTML = '<p id="no-orders">No active orders right now.</p>';
                     return;
                 }
 
-                // Clear existing orders to prevent duplication
-                ordersContainer.innerHTML = '';
                 snapshot.docChanges().forEach((change) => {
-                     if (change.type === "added") {
-                        const order = change.doc.data();
-                        const orderId = change.doc.id;
-                        const orderCard = createOrderCard(order, orderId);
-                        // Add new orders to the top
-                        ordersContainer.prepend(orderCard);
+                    const order = change.doc.data();
+                    const orderId = change.doc.id;
+                    const existingCard = document.getElementById(`order-${orderId}`);
+
+                    if (change.type === "added") {
+                        if (!existingCard) { // Only add if it doesn't exist
+                            const orderCard = createOrderCard(order, orderId);
+                            // Add new orders to the top (more recent orders visible first)
+                            ordersContainer.prepend(orderCard);
+                        }
+                    }
+                    if (change.type === "modified") {
+                        // If an order is modified (e.g., status changed), remove the old card and re-add if still active
+                        if (existingCard) {
+                            existingCard.remove();
+                        }
+                        if (order.status === "active") { // Only re-add if it's still active
+                            const orderCard = createOrderCard(order, orderId);
+                            ordersContainer.prepend(orderCard);
+                        }
                     }
                     if (change.type === "removed") {
-                        const orderId = change.doc.id;
-                        const orderCard = document.getElementById(`order-${orderId}`);
-                        if (orderCard) {
-                            orderCard.remove();
+                        if (existingCard) {
+                            existingCard.remove();
                         }
                     }
                 });
 
-                 // Check if there are any cards left
-                if (ordersContainer.children.length === 0){
-                     ordersContainer.innerHTML = '<p id="no-orders">No active orders right now.</p>';
+                // After processing all changes, check if there are any cards left
+                if (ordersContainer.children.length === 0) {
+                    ordersContainer.innerHTML = '<p id="no-orders">No active orders right now.</p>';
                 }
-
 
             }, (error) => {
                 console.error("Error listening for orders:", error);
@@ -221,9 +237,12 @@
         function createOrderCard(order, orderId) {
             const card = document.createElement('div');
             card.className = 'order-card';
-            card.id = `order-${orderId}`;
+            card.id = `order-${orderId}`; // Assign an ID to the card for easy manipulation
 
-            const orderTime = order.timestamp.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            // Ensure timestamp exists and is a Firestore Timestamp object
+            const orderTime = order.timestamp && order.timestamp.toDate ?
+                              order.timestamp.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) :
+                              'N/A'; // Fallback for cases where timestamp might be missing or not a Timestamp object
 
             let itemsHtml = '<ul>';
             order.items.forEach(item => {
@@ -267,14 +286,15 @@
                     status: "completed"
                 });
                 console.log(`Order ${orderId} marked as complete.`);
-                cardElement.classList.add('completed');
-                // The onSnapshot listener will handle removing it from the view
+                // The onSnapshot listener will automatically remove this card
+                // as its status no longer matches the "active" query.
+                // No need to manually remove or add 'completed' class here
+                // because the snapshot listener will handle the DOM update.
             } catch (error) {
                 console.error("Error updating order status:", error);
                 alert("Could not complete the order. Please try again.");
             }
         }
-
 
         // Start listening for orders when the page loads
         window.onload = function() {
