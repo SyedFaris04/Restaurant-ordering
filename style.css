@@ -728,3 +728,21 @@ ul {
         font-size: 16px;
     }
 }
+
+/* Add these styles to style.css */
+.valid-promo {
+    border-color: var(--success-color) !important;
+    background-color: rgba(102, 187, 106, 0.1);
+}
+
+.invalid-promo {
+    border-color: var(--error-color) !important;
+    background-color: rgba(239, 83, 80, 0.1);
+}
+
+.promo-hint {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 13px;
+}
