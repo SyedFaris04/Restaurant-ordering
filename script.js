@@ -69,13 +69,10 @@ const menuData = [
 // Global variables
 let cart = [];
 let currentCategory = 'all';
-
-// Promo discounts
-const promoDiscounts = {
-    none: 0,
-    student: 0.1,    // 10% discount
-    staff: 0.05,     // 5% discount
-    firstorder: 0.15 // 15% discount
+const validPromoCodes = {
+    "CAFEKC8": 0.08,    // 8% discount
+    "STUDENT10": 0.10,  // 10% discount
+    "WELCOME15": 0.15   // 15% discount
 };
 
 // DOM elements
@@ -117,11 +114,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('checkout.html')) {
         displayCartItems();
         
-        // Add promo type change listener
-        const promoTypeSelect = document.getElementById('promoType');
-        if (promoTypeSelect) {
-            promoTypeSelect.addEventListener('change', function() {
-                displayCartItems();
+        // Add promo code input listener
+        const promoCodeInput = document.getElementById('promoCode');
+        if (promoCodeInput) {
+            promoCodeInput.addEventListener('input', function() {
+                // Validate and apply promo code as they type
+                const promoCode = this.value.trim().toUpperCase();
+                if (validPromoCodes[promoCode]) {
+                    this.classList.add('valid-promo');
+                    this.classList.remove('invalid-promo');
+                    displayCartItems();
+                } else if (promoCode.length > 0) {
+                    this.classList.add('invalid-promo');
+                    this.classList.remove('valid-promo');
+                    displayCartItems();
+                } else {
+                    this.classList.remove('valid-promo', 'invalid-promo');
+                    displayCartItems();
+                }
             });
         }
         
@@ -362,8 +372,14 @@ function updateCartCount() {
 function displayCartItems() {
     const cartItemsContainer = document.getElementById('cartItems');
     const cartTotalElement = document.getElementById('cartTotal');
-    const promoType = document.getElementById('promoType') ? document.getElementById('promoType').value : 'none';
-    const discount = promoDiscounts[promoType] || 0;
+    const promoCodeInput = document.getElementById('promoCode');
+    let discount = 0;
+    let promoCode = '';
+    
+    if (promoCodeInput) {
+        promoCode = promoCodeInput.value.trim().toUpperCase();
+        discount = validPromoCodes[promoCode] || 0;
+    }
     
     if (!cartItemsContainer || !cartTotalElement) return;
     
@@ -407,7 +423,7 @@ function displayCartItems() {
     html += `
         <div class="price-breakdown">
             <p class="subtotal">Subtotal: RM${subtotal.toFixed(2)}</p>
-            ${discount > 0 ? `<p class="discount">Discount (${promoType} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>` : ''}
+            ${discount > 0 ? `<p class="discount">Discount (${promoCode} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>` : ''}
         </div>
     `;
     
@@ -481,7 +497,7 @@ function validateOrderForm() {
     const address = document.getElementById('address').value;
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     const reference = document.getElementById('reference').value;
-    const promoType = document.getElementById('promoType').value;
+    const promoCodeInput = document.getElementById('promoCode');
     
     if (!name || !email || !phone) {
         alert('Please fill in all required fields.');
@@ -498,9 +514,9 @@ function validateOrderForm() {
         return false;
     }
     
-    // Additional validation for student discount
-    if (promoType === 'student' && !email.toLowerCase().endsWith('.edu') && !email.toLowerCase().endsWith('.edu.my')) {
-        alert('Student discount requires a valid educational email address (.edu or .edu.my)');
+    // Optional: Validate promo code if entered
+    if (promoCodeInput && promoCodeInput.value.trim() !== '' && !validPromoCodes[promoCodeInput.value.trim().toUpperCase()]) {
+        alert('Invalid promo code. Please enter a valid code or remove it.');
         return false;
     }
     
@@ -517,8 +533,14 @@ function displayOrderSummary() {
     const orderSummaryContainer = document.getElementById('orderSummary');
     if (!orderSummaryContainer) return;
     
-    const promoType = document.getElementById('promoType') ? document.getElementById('promoType').value : 'none';
-    const discount = promoDiscounts[promoType] || 0;
+    const promoCodeInput = document.getElementById('promoCode');
+    let discount = 0;
+    let promoCode = '';
+    
+    if (promoCodeInput) {
+        promoCode = promoCodeInput.value.trim().toUpperCase();
+        discount = validPromoCodes[promoCode] || 0;
+    }
     
     let html = '<h3>Order Details:</h3>';
     let subtotal = 0;
@@ -538,7 +560,7 @@ function displayOrderSummary() {
     html += `<p class="subtotal">Subtotal: RM${subtotal.toFixed(2)}</p>`;
     
     if (discount > 0) {
-        html += `<p class="discount">Discount (${promoType} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>`;
+        html += `<p class="discount">Discount (${promoCode} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>`;
     }
     
     html += `<p class="total"><strong>Total: RM${total.toFixed(2)}</strong></p>`;
