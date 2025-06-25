@@ -70,6 +70,14 @@ const menuData = [
 let cart = [];
 let currentCategory = 'all';
 
+// Promo discounts
+const promoDiscounts = {
+    none: 0,
+    student: 0.1,    // 10% discount
+    staff: 0.05,     // 5% discount
+    firstorder: 0.15 // 15% discount
+};
+
 // DOM elements
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize the page
@@ -108,6 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Checkout page functionality
     if (window.location.pathname.includes('checkout.html')) {
         displayCartItems();
+        
+        // Add promo type change listener
+        const promoTypeSelect = document.getElementById('promoType');
+        if (promoTypeSelect) {
+            promoTypeSelect.addEventListener('change', function() {
+                displayCartItems();
+            });
+        }
         
         // Toggle delivery address fields
         const deliveryOptions = document.querySelectorAll('input[name="deliveryOption"]');
@@ -346,6 +362,8 @@ function updateCartCount() {
 function displayCartItems() {
     const cartItemsContainer = document.getElementById('cartItems');
     const cartTotalElement = document.getElementById('cartTotal');
+    const promoType = document.getElementById('promoType') ? document.getElementById('promoType').value : 'none';
+    const discount = promoDiscounts[promoType] || 0;
     
     if (!cartItemsContainer || !cartTotalElement) return;
     
@@ -356,11 +374,11 @@ function displayCartItems() {
     }
     
     let html = '';
-    let total = 0;
+    let subtotal = 0;
     
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
-        total += itemTotal;
+        subtotal += itemTotal;
         
         html += `
             <div class="cart-item" data-id="${item.id}">
@@ -380,6 +398,18 @@ function displayCartItems() {
             </div>
         `;
     });
+    
+    // Calculate discount and total
+    const discountAmount = subtotal * discount;
+    const total = subtotal - discountAmount;
+    
+    // Add discount and total information
+    html += `
+        <div class="price-breakdown">
+            <p class="subtotal">Subtotal: RM${subtotal.toFixed(2)}</p>
+            ${discount > 0 ? `<p class="discount">Discount (${promoType} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>` : ''}
+        </div>
+    `;
     
     cartItemsContainer.innerHTML = html;
     cartTotalElement.textContent = `RM${total.toFixed(2)}`;
@@ -451,6 +481,7 @@ function validateOrderForm() {
     const address = document.getElementById('address').value;
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     const reference = document.getElementById('reference').value;
+    const promoType = document.getElementById('promoType').value;
     
     if (!name || !email || !phone) {
         alert('Please fill in all required fields.');
@@ -467,6 +498,12 @@ function validateOrderForm() {
         return false;
     }
     
+    // Additional validation for student discount
+    if (promoType === 'student' && !email.toLowerCase().endsWith('.edu') && !email.toLowerCase().endsWith('.edu.my')) {
+        alert('Student discount requires a valid educational email address (.edu or .edu.my)');
+        return false;
+    }
+    
     if (cart.length === 0) {
         alert('Your cart is empty. Please add items to your cart before placing an order.');
         return false;
@@ -480,17 +517,29 @@ function displayOrderSummary() {
     const orderSummaryContainer = document.getElementById('orderSummary');
     if (!orderSummaryContainer) return;
     
+    const promoType = document.getElementById('promoType') ? document.getElementById('promoType').value : 'none';
+    const discount = promoDiscounts[promoType] || 0;
+    
     let html = '<h3>Order Details:</h3>';
-    let total = 0;
+    let subtotal = 0;
     
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
-        total += itemTotal;
+        subtotal += itemTotal;
         
         html += `
             <p><strong>${item.name}</strong> x ${item.quantity} - RM${itemTotal.toFixed(2)}</p>
         `;
     });
+    
+    const discountAmount = subtotal * discount;
+    const total = subtotal - discountAmount;
+    
+    html += `<p class="subtotal">Subtotal: RM${subtotal.toFixed(2)}</p>`;
+    
+    if (discount > 0) {
+        html += `<p class="discount">Discount (${promoType} ${(discount*100).toFixed(0)}%): -RM${discountAmount.toFixed(2)}</p>`;
+    }
     
     html += `<p class="total"><strong>Total: RM${total.toFixed(2)}</strong></p>`;
     html += `<p>Your order will be ready in 30 minutes.</p>`;
