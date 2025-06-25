@@ -78,17 +78,13 @@
                             </div>
                         </div>
 
- <h3>Promo Code</h3>
-        <div class="form-group">
-            <label for="promoType">Select Your Discount</label>
-            <select id="promoType" name="promoType" class="form-control">
-                <option value="none">No Promo</option>
-                <option value="student">Student (10% discount)</option>
-                <option value="staff">Staff (5% discount)</option>
-                <option value="firstorder">First Order (15% discount)</option>
-                <option value="weekend">Weekdays Special (8% discount)</option>
-            </select>
-        </div>
+ <!-- Replace the promo dropdown with this in checkout.html -->
+<h3>Promo Code</h3>
+<div class="form-group">
+    <label for="promoCode">Enter Promo Code</label>
+    <input type="text" id="promoCode" name="promoCode" placeholder="e.g. CAFEKC8">
+    <small class="promo-hint">Valid codes: CAFEKC8 (8% off), STUDENT10 (10% off), WELCOME15 (15% off)</small>
+</div>
                         
                         <h3>Payment Method</h3>
                         <div class="form-group radio-group">
